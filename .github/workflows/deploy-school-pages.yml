@@ -1,0 +1,67 @@
+name: Deploy school AAC app
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Configure school production build
+        run: |
+          VERSION="school-${GITHUB_SHA::7}"
+          sed -i "s/#ASTERICS_GRID_VERSION#/${VERSION}/g" src/js/util/constants.js
+          sed -i "s/#ASTERICS_GRID_ENV#/PRODUCTION/g" src/js/util/constants.js
+          sed -i "s/#ASTERICS_GRID_VERSION#/${VERSION}/g" src/vue-components/views/aboutView.vue
+          sed -i "s/#ASTERICS_GRID_VERSION#/${VERSION}/g" serviceWorker.js
+          sed -i -E 's/(FORCE_USE_SW[[:space:]]*[:=][[:space:]]*)false/\1true/g' src/js/util/constants.js
+
+      - name: Test and build
+        run: npm run build
+
+      - name: Assemble static site
+        run: |
+          mkdir _site
+          cp index.html serviceWorker.js serviceWorkerCachePaths.js unsupported.html _site/
+          cp -R app _site/app
+          node -e "const fs=require('fs'); const p='_site/app/manifest.webmanifest'; const m=JSON.parse(fs.readFileSync(p)); m.id='../'; fs.writeFileSync(p, JSON.stringify(m, null, 2));"
+          cp index.html _site/404.html
+          touch _site/.nojekyll
+
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload site artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
