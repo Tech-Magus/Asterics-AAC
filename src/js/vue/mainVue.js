@@ -15,6 +15,7 @@ import ProgressBarModal from '../../vue-components/modals/progressBarModal.vue';
 import SearchModal from "../../vue-components/modals/searchModal.vue";
 import MessageBox from "../../vue-components/modals/messageBox.vue";
 import { systemActionService } from '../service/systemActionService';
+import { buildFeedbackMailto } from '../util/feedbackUtil';
 
 let MainVue = {};
 let app = null;
@@ -182,6 +183,9 @@ MainVue.init = function () {
                 openHelp() {
                     helpService.openHelp();
                 },
+                openFeedback() {
+                    openFeedbackEmail();
+                },
                 moreNavigation() {
                     $.contextMenu('destroy');
                     setupContextMenu();
@@ -280,10 +284,12 @@ function setupContextMenu() {
     let CONTEXT_ADD_ONLINE = 'CONTEXT_ADD_ONLINE';
     let CONTEXT_ADD_OFFLINE = 'CONTEXT_ADD_OFFLINE';
     let CONTEXT_ABOUT = 'CONTEXT_ABOUT';
+    let CONTEXT_FEEDBACK = 'CONTEXT_FEEDBACK';
     let menuItems = {
         CONTEXT_ADD_ONLINE: { name: i18nService.t('addOnlineUser'), icon: 'fas fa-user-plus' },
         CONTEXT_ADD_OFFLINE: { name: i18nService.t('addOfflineUser'), icon: 'fas fa-user-plus' },
-        CONTEXT_ABOUT: { name: i18nService.t('aboutAstericsGrid'), icon: 'fas fa-info-circle' }
+        CONTEXT_ABOUT: { name: i18nService.t('aboutAstericsGrid'), icon: 'fas fa-info-circle' },
+        CONTEXT_FEEDBACK: { name: i18nService.t('feedback'), icon: 'fas fa-comment-alt' }
     };
     $.contextMenu({
         selector: '#moreNavigation',
@@ -306,8 +312,15 @@ function setupContextMenu() {
             case CONTEXT_ABOUT:
                 Router.toAbout();
                 break;
+            case CONTEXT_FEEDBACK:
+                openFeedbackEmail();
+                break;
         }
     }
+}
+
+function openFeedbackEmail() {
+    window.location.href = buildFeedbackMailto(window.location.href);
 }
 
 export { MainVue };
