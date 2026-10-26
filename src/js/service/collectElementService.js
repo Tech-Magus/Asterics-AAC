@@ -7,6 +7,7 @@ import { predictionService } from './predictionService';
 import { i18nService } from './i18nService';
 import { fontUtil } from '../util/fontUtil';
 import { GridActionCollectElement } from '../model/GridActionCollectElement';
+import { joinCollectionText } from '../util/collectionTextUtil';
 import { GridActionNavigate } from '../model/GridActionNavigate';
 import { GridActionPredict } from '../model/GridActionPredict';
 import { youtubeService } from './youtubeService';
@@ -106,7 +107,7 @@ collectElementService.doARASAACGrammarCorrection = async function() {
     }
 }
 
-collectElementService.doCollectElementActions = async function (action, gridElement) {
+collectElementService.doCollectElementActions = async function (action, gridElement, actionDetails) {
     if (!action) {
         return;
     }
@@ -116,6 +117,13 @@ collectElementService.doCollectElementActions = async function (action, gridElem
     let speakText = getPrintText({ dontIncludePronunciation: false });
     let speakArray = getSpeakArray();
     switch (action) {
+        case GridActionCollectElement.COLLECT_ACTION_APPEND_TEXT: {
+            let text = i18nService.getTranslation(actionDetails && actionDetails.text, {noFallback: true});
+            text = text === undefined || text === null ? '' : String(text);
+            addTextElem(text, actionDetails && actionDetails.appendMode === 'exact');
+            updateCollectElements();
+            break;
+        }
         case GridActionCollectElement.COLLECT_ACTION_SPEAK:
             if (isSeparateMode(collectMode)) {
                 speechService.speakArray(speakArray, (index) => {
@@ -555,9 +563,7 @@ function getPrintText(options) {
         options.dontIncludePronunciation !== undefined ? options.dontIncludePronunciation : true;
     options.inlcudeCorrectedGrammar =
         options.inlcudeCorrectedGrammar !== undefined ? options.inlcudeCorrectedGrammar : true;
-    let textArray = collectedElements.map((e) => getOutputObject(e, options).text)
-    let returnValue = options.trim ? textArray.join(' ').trim() : textArray.join(' ');
-    return returnValue.replace(/\s+/g, ' ');
+    return joinCollectionText(collectedElements, (element) => getOutputObject(element, options).text);
 }
 
 function getPredictText() {
@@ -573,11 +579,12 @@ function getPrintTextOfElement(element) {
     return textObject && textObject.text ? textObject.text : '';
 }
 
-function addTextElem(text) {
+function addTextElem(text, exact) {
     let newElem = new GridElement({
         label: i18nService.getTranslationObject(text)
     });
     newElem.onlyText = true;
+    newElem.collectionAppendExact = !!exact;
     collectedElements.push(newElem);
 }
 
@@ -623,7 +630,11 @@ $(window).on(constants.ELEMENT_EVENT_ID, function (event, element) {
         let label = getLabel(element);
         let printText = getPrintTextOfElement(element);
         let image = getImageData(element);
-        if (label && collectElementService.isCurrentGridKeyboard()) {
+        if (element.collectText !== undefined) {
+            let exactText = i18nService.getTranslation(element.collectText, {noFallback: true});
+            exactText = exactText === undefined || exactText === null ? '' : String(exactText);
+            addTextElem(exactText, true);
+        } else if (label && collectElementService.isCurrentGridKeyboard()) {
             if (convertToLowercaseIfKeyboard) {
                 label = label.toLowerCase();
             }
