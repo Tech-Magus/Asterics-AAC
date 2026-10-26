@@ -183,9 +183,6 @@ MainVue.init = function () {
                 openHelp() {
                     helpService.openHelp();
                 },
-                openFeedback() {
-                    openFeedbackEmail();
-                },
                 moreNavigation() {
                     $.contextMenu('destroy');
                     setupContextMenu();
