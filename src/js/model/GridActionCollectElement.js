@@ -6,7 +6,9 @@ class GridActionCollectElement extends Model({
     id: String,
     modelName: String,
     modelVersion: String,
-    action: [String]
+    action: [String],
+    text: [Object, String, undefined],
+    appendMode: [String]
 }) {
     constructor(properties, elementToCopy) {
         properties = modelUtil.setDefaults(properties, elementToCopy, GridActionCollectElement);
@@ -42,7 +44,8 @@ class GridActionCollectElement extends Model({
             GridActionCollectElement.COLLECT_ACTION_APPEND_CLIPBOARD,
             GridActionCollectElement.COLLECT_ACTION_CLEAR_CLIPBOARD,
             GridActionCollectElement.COLLECT_ACTION_TO_YOUTUBE,
-            GridActionCollectElement.COLLECT_ACTION_TOGGLE_TEXT_ROTATION
+            GridActionCollectElement.COLLECT_ACTION_TOGGLE_TEXT_ROTATION,
+            GridActionCollectElement.COLLECT_ACTION_APPEND_TEXT
         ];
     }
 }
@@ -63,6 +66,7 @@ GridActionCollectElement.COLLECT_ACTION_APPEND_CLIPBOARD = 'COLLECT_ACTION_APPEN
 GridActionCollectElement.COLLECT_ACTION_CLEAR_CLIPBOARD = 'COLLECT_ACTION_CLEAR_CLIPBOARD';
 GridActionCollectElement.COLLECT_ACTION_TO_YOUTUBE = 'COLLECT_ACTION_TO_YOUTUBE';
 GridActionCollectElement.COLLECT_ACTION_TOGGLE_TEXT_ROTATION = 'COLLECT_ACTION_TOGGLE_TEXT_ROTATION';
+GridActionCollectElement.COLLECT_ACTION_APPEND_TEXT = 'COLLECT_ACTION_APPEND_TEXT';
 
 GridActionCollectElement.defaults({
     id: '', //will be replaced by constructor
