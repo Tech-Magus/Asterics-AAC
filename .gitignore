@@ -12,3 +12,4 @@ backup/
 
 scripts/getDeletedCouchdbDocs/live
 scripts/getDeletedCouchdbDocs/undeleted
+downloads/
