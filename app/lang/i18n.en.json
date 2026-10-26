@@ -177,6 +177,7 @@
   "directionInput": "Direction Input",
   "directionInputMethod25InputEvents": "Direction input method: 2-5 input events",
   "help": "Help",
+  "feedback": "Feedback",
   "enableDirectionInput": "Enable direction input",
   "resetToDefaultInputConfiguration": "Reset to default input configuration",
   "wrapAroundJumpToFirstElementAfterLastElem": "Wrap around (jump to first element after last element)",
